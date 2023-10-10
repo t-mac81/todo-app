@@ -55,7 +55,6 @@ const createTodo = () => {
   todoList.append(newTodo);
   newTodo.append(removeButton);
   newTodo.prepend(newCheckBox);
-
   newTodo.dataset.id = id;
 
   // push todo object to array and add to local storage:

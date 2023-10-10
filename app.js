@@ -34,38 +34,44 @@ const createTodo = (todoText, todoId, checked = false) => {
 //populate todo list from local storage
 for (todo of savedTodoList) {
   createTodo(todo.text, todo.id, todo.checked);
-  //   const newTodo = document.createElement('li');
-  //   newTodo.innerText = todo.text;
-  //   const newCheckBox = document.createElement('input');
-  //   newCheckBox.setAttribute('type', 'checkbox');
-  //   const removeButton = document.createElement('button');
-  //   removeButton.innerText = 'Delete';
-  //   removeButton.className = 'remove';
-  //   todoList.append(newTodo);
-  //   newTodo.append(removeButton);
-  //   newTodo.prepend(newCheckBox);
-  //   newTodo.dataset.id = todo.id;
 }
+
+// find savedTodoList array index for delete and checkbox
+const findIndex = (datasetId) => {
+  const id = Number(datasetId);
+  return savedTodoList.findIndex((todo) => todo.id === id);
+};
 
 // Event delegation for delete button and checkbox
 todoList.addEventListener('click', (e) => {
   if (e.target.tagName === 'BUTTON') {
     e.target.parentElement.remove();
-    //modify local storage array and store (use array.splice)
+    //remove from local storage array and store
+    const arrIndex = findIndex(e.target.parentElement.dataset.id);
+    savedTodoList.splice(arrIndex, 1);
+    localStorage.setItem('savedTodoList', JSON.stringify(savedTodoList));
   } else if (e.target.tagName === 'INPUT') {
     e.target.parentElement.classList.toggle('checked');
-    // modify savedTodoList and store
+    // modify savedTodoList and store when check is toggled
+    const arrIndex = findIndex(e.target.parentElement.dataset.id);
+    savedTodoList[arrIndex].checked
+      ? (savedTodoList[arrIndex].checked = false)
+      : (savedTodoList[arrIndex].checked = true);
+    localStorage.setItem('savedTodoList', JSON.stringify(savedTodoList));
   }
 });
 
 todoSubmit.addEventListener('submit', (e) => {
   e.preventDefault();
-  const todoText = todoInput.value;
-  const todo = createTodo(todoText, id);
-  storeTodos(todo);
-  todoInput.value = '';
+  if (todoInput.value.length > 0) {
+    const todoText = todoInput.value;
+    const todo = createTodo(todoText, id);
+    storeTodos(todo);
+    todoInput.value = '';
+  }
 });
 
+// store todoObject in array and local storage
 const storeTodos = (todoObject) => {
   id++;
   savedTodoList.push(todoObject);

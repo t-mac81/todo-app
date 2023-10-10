@@ -4,10 +4,10 @@ const todoList = document.querySelector('#todo-list');
 let id = Number(localStorage.getItem('id')) || 0;
 const savedTodoList = JSON.parse(localStorage.getItem('savedTodoList')) || [];
 
-//populate todo list from local storage
-for (todo of savedTodoList) {
+// re-usable create todo function
+const createTodo = (todoText, todoId, checked = false) => {
   const newTodo = document.createElement('li');
-  newTodo.innerText = todo.text;
+  newTodo.innerText = todoText;
   const newCheckBox = document.createElement('input');
   newCheckBox.setAttribute('type', 'checkbox');
   const removeButton = document.createElement('button');
@@ -16,7 +16,35 @@ for (todo of savedTodoList) {
   todoList.append(newTodo);
   newTodo.append(removeButton);
   newTodo.prepend(newCheckBox);
-  newTodo.dataset.id = todo.id;
+  newTodo.dataset.id = todoId;
+  newCheckBox.checked = checked;
+  if (checked) {
+    newTodo.classList.toggle('checked');
+  }
+
+  // create todo object
+  const todoObject = {
+    id: id,
+    text: todoText,
+    checked: checked,
+  };
+  return todoObject;
+};
+
+//populate todo list from local storage
+for (todo of savedTodoList) {
+  createTodo(todo.text, todo.id, todo.checked);
+  //   const newTodo = document.createElement('li');
+  //   newTodo.innerText = todo.text;
+  //   const newCheckBox = document.createElement('input');
+  //   newCheckBox.setAttribute('type', 'checkbox');
+  //   const removeButton = document.createElement('button');
+  //   removeButton.innerText = 'Delete';
+  //   removeButton.className = 'remove';
+  //   todoList.append(newTodo);
+  //   newTodo.append(removeButton);
+  //   newTodo.prepend(newCheckBox);
+  //   newTodo.dataset.id = todo.id;
 }
 
 // Event delegation for delete button and checkbox
@@ -32,34 +60,15 @@ todoList.addEventListener('click', (e) => {
 
 todoSubmit.addEventListener('submit', (e) => {
   e.preventDefault();
-  createTodo();
+  const todoText = todoInput.value;
+  const todo = createTodo(todoText, id);
+  storeTodos(todo);
   todoInput.value = '';
 });
 
-// Create Todo and add to local storage
-const createTodo = () => {
-  const newTodo = document.createElement('li');
-  newTodo.innerText = todoInput.value;
-  // Create todo Object:
-  const todoObject = {
-    id: id,
-    text: newTodo.innerText,
-    checked: false,
-  };
-
-  const newCheckBox = document.createElement('input');
-  newCheckBox.setAttribute('type', 'checkbox');
-  const removeButton = document.createElement('button');
-  removeButton.innerText = 'Delete';
-  removeButton.className = 'remove';
-  todoList.append(newTodo);
-  newTodo.append(removeButton);
-  newTodo.prepend(newCheckBox);
-  newTodo.dataset.id = id;
-
-  // push todo object to array and add to local storage:
-  savedTodoList.push(todoObject);
+const storeTodos = (todoObject) => {
   id++;
+  savedTodoList.push(todoObject);
   localStorage.setItem('savedTodoList', JSON.stringify(savedTodoList));
   localStorage.setItem('id', id);
 };
